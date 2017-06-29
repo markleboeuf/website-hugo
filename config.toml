@@ -3,9 +3,9 @@ title = "Mark LeBoeuf"
 theme = "hugo-creative-portfolio-theme"
 languageCode = "en-us"
 # Enable comments by entering your Disqus shortname
-disqusShortname = ""
+disqusShortname = "https-markleboeuf-github-io"
 # Enable Google Analytics by entering your tracking code
-googleAnalytics = ""
+googleAnalytics = "UA-101855339-1"
 
 
 favicon = "favicon.ico"
@@ -15,9 +15,9 @@ favicon = "favicon.ico"
   # Use custom.css for your custom styling
   style = "red"
   description = "Code and Stuff"
-  copyright = "&copy;2016 Mark LeBoeuf"
+  copyright = "&copy;2017 Mark LeBoeuf"
   sidebarAbout = [
-    "I am a Data Scientist, currently based in Portland, OR."
+    "I am a Data Scientist currently based in Portland, OR."
   ]
   # Contact page
      # Since this template is static, the contact form uses www.formspree.io as a
@@ -43,7 +43,14 @@ favicon = "favicon.ico"
   url = "about/"
 
 
+
   [params.social]
-  twitter       = "full profile url in twitter"
-  linkedin      = "full profile url in linkedin"
-  github        = "full profile url in github"
+  #twitter       = "full profile url in twitter"
+  linkedin      = "https://www.linkedin.com/in/markleboeuf/"
+  github        = "https://github.com/markleboeuf/markleboeuf.github.io"
+
+#Adding widgets to the sidebar
+  [params.widgets]
+    categories = false
+    tags = false
+    search = true
