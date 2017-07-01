@@ -2,7 +2,7 @@
 date = "2017-05-01T19:41:01+05:30"
 title = "Establishing Causality with Counterfactual Prediction"
 draft = false
-image = "portfolio/counterfactual_prediction_images/counterfactual_example.png"
+image = "portfolio/counterfactual_prediction_images/wacky_inflatable_man.jpg"
 showonlyimage = false
 weight = 6
 tags = ["R", "COUNTERFACTUAL PREDICTION", "FORECASTING", "CAUSALITY"]
@@ -12,10 +12,8 @@ Sometimes a controlled experiment isn't an option yet you want to establish caus
 
 <!--more-->
 
-<img src="../counterfactual_prediction_images/counterfactual_example.png" class="img-responsive" style="display: block; margin: auto;" />
-
 -   [Overview](#overview)
--   [Souvenir Sales + Sign Spinning + Australia](#souvenir-sales-+-sign-spinning-+-australia)
+-   [Souvenir Sales, Australia, and Wacky Inflatable Tube Men](#souvenir-sales-australia-and-wacky-inflatable tube-men)
 -   [Creating the Synthetic Data Set](#creating-the-synthetic-data-set)
 -   [Selecting a Control Time Series with Dynamic Time Warping](#selecting-a-control-time-series-with-dynamic-time-warping)
 -   [Generating Counterfactual Predictions](#generating-counterfactual-predictions)
@@ -27,15 +25,16 @@ Overview
 Businesses have several "levers" they can pull in an effort to boost sales. For example, a series of advertisements might be shown in a particular city or region with the hopes of increasing sales for the advertised product. Ideally the cost associated with the advertisement would be outstripped by the expected increase in sales, visits, conversion, or whatever KPI (key performance indicator) the business hopes to drive. But how do you capture the ROI of the advertisement? In a parallel universe, where all experiments are possible, we would create two copies of the same city, run the advertisement in one of them, track our metric of interest over the some period of time, and then compare the difference  between the two cities. All potential confounding variables, such as differences in seasonal variation, viewership rates, or buying preference, would be controlled. Thus any difference (lift) in our KPI could be attributed to the intervention. 
 
 
-### Souvenir Sales + Sign Spinning + Australia
+### Souvenir Sales, Australia, and Wacky Inflatable Tube Men
 
 We can't clone cities, but there is a way to statistically emulate the above situation. This post provides a general overview of how to generate a **counterfactual prediction**, which is a way to quantify what would've happened had we never run the advertisement, event, or intervention. 
 
-Incremental Sales, ROI, KPIs, Lift -- these terms are somewhat abstract. Australia, Souvenirs, Sign-Spinners -- that all seems pretty straight-forward. So imagine you run a souvenir shop near the beach and you're looking for ways to attract additional foot traffic and (hopefully) increase sales. You decide to hire your best friend to stand outside your shop, spin a sign with your logo on it, and encourage people to come buy your awesome souvenirs. 
+Incremental Sales, ROI, KPIs, Lift -- these terms are somewhat abstract. Australia, Souvenirs, Wacky- Inflatable-Tube-Men (WITM for short) -- that all seems pretty straight-forward. So imagine you run a souvenir shop near the beach in Australia and you're looking for ways to attract additional foot traffic and (hopefully) increase sales. You decide to purchase this guy below, hoping it will draw attention to your store, increase foot traffic, and produce more souvenir sales. 
 
-### you need a picture of a sign spinner here
+<img src="../counterfactual_prediction_images/wacky_inflatable_man.jpg" class="img-responsive" style="display: block; margin: auto;" />
 
-Being a savy business owner, you're interested in the effect of your new sign-spinning employee on sales. Does having this form of advertisement actually drive sales beyond what would've happened in the absence of any sign-spinnery? You look to the other six souvenir shops in seperate parts of town to answer this question. The other souvenir shops will serve as a control group, because they don't have any form of advertising campaign happening over the six months during which your intervention (sign-spinning) will be run. Additionally, the other shops are located far enough away from your shop that there is no way for their sales to be affected by your new sign spinner (this is a critical assumption that in real-world contexts should be verified). After accounting for base-line differences in sales between your shop and the control shops, you build a forecast -- or counterfactual prediction -- premised on what would've happened in your shop had the sign-spinning intervention never taken place. This prediction will then serve as the baseline from which to compare what actually happened to sales. 
+
+Being a savy business owner, you're interested in the effect of your new WITM on sales. Does having this form of advertisement actually drive sales beyond what would've happened in the absence of any WITM? You look to the other six souvenir shops in seperate parts of town to answer this question. The other souvenir shops will serve as a control group because they don't have a WITM. Additionally, the other shops are located far enough away from your shop so there is no way for their sales to be affected by your WITM (this is a critical assumption that in real-world contexts should be verified). After accounting for base-line differences in sales between your shop and the control shops, you build a forecast -- or counterfactual prediction -- premised on what would've happened in your shop had the WITM intervention never taken place. This prediction will then serve as the baseline from which to compare what actually happened to sales. 
 
 In short, you (the shop owner) are faced with two tasks: 
 
@@ -109,7 +108,7 @@ souvenir_ts = ts(log(souvenir$Sales),
                  start = c(1987, 1))
 ```
 
-Now our seasonal fluctuations are roughly constant across time and can be described with an additive model. Next I'm going to introduce some random noise to the time series and then generate a 6-month ahead forecast. A constant (0.5 SDs) will be added to each of the forecasted values. This is to simulate the positive effect that the sign-spinning intervention had on sales during the 6-month intervention period. We'll then plot the results to get a better idea of when each of aforementioned events is happening. 
+Now our seasonal fluctuations are roughly constant across time and can be described with an additive model. Next we'll introduce some random noise to the time series and then generate a 6-month ahead forecast. A constant (0.5 SDs) will be added to each of the forecasted values. This is to simulate the positive effect that the WITM intervention had on sales during the 6-month intervention period. We'll then plot the results to get a better idea of when each of aforementioned events is happening. 
 
 ```r
 set.seed(123)
@@ -214,7 +213,7 @@ similar_df$measurement_date = rep(seq(as.Date("1987-01-01"),
 similar_df = rbind(souvenir_sim, similar_df)
 ```
 
-We now have all of time series in neat dataframe. Let's visualize what that looks like. 
+We now have all of time series in a neat dataframe. Let's visualize what that looks like. 
 
 ```r 
 ggplot(similar_df, aes(x = as.Date(measurement_date), y = sales, color = store)) + geom_point() + geom_line() +
@@ -295,7 +294,7 @@ print(results)
 ```
 
 
-Let's breakdown the **Effect Analysis** portion of the output. The **Absolute Effect** indicates a lift of approximately 60.8K in sales over the 6-month intervention period. Assuming we paid our sign-spinner $20 per hour, the ROI here is huge (our sign-spinning friend is clearly up for a promotion to senior sign-spinner). The **Relative Effect** provides a standardized view. Most real-world interventions involving people provide a few percentage-points lift; in this case we observed an estimated lift of 49.5%, which is extremely rare. Finally, the **Probability of a causal impact** indicates that the likelihood of observing this effect by chance is extremely low (e.g., 100 - 99.89). We can see what was just described above in visual format below. 
+Let's breakdown the **Effect Analysis** portion of the output. The **Absolute Effect** indicates a lift of approximately 60.8K in sales over the 6-month intervention period. Assuming we paid our $500 for our WITM, the ROI here is huge. The **Relative Effect** provides a standardized view. Most real-world interventions involving people provide a few percentage-points lift; in this case we observed an estimated lift of 49.5%, which is extremely rare. Finally, the **Probability of a causal impact** indicates that the likelihood of observing this effect by chance is extremely low (e.g., 100 - 99.89). We can see what was just described above in visual format below. 
 
 <img src="../counterfactual_prediction_images/similiar_market_5.png" class="img-responsive" style="display: block; margin: auto;" />
 
@@ -349,7 +348,7 @@ print(results)
 ##  Probability of a causal impact: 99.7951%
 
 ```
-Using log-sales instead of raw sales substantially improved the fit of our model. We know this by comparing the MAPE, or Mean Average Percent Error, of our log-transformed model (1.52%) relative to our raw model (16.97%). In this case a lower MAPE indicates a better model fit. Thus, we should consider the estimates from our log-transformed data to be more reliable than those from the previous, raw data. It is interesting to note how our interpretation changes so much! Instead of a 49.5% lift, the estimate is now 4.5%. We may want to hold off on that promotion after all! Finally let's visualize the updated estimate below. 
+Using log-sales instead of raw sales substantially improved the fit of our model. We know this by comparing the MAPE, or Mean Average Percent Error, of our log-transformed model (1.52%) relative to our raw model (16.97%). In this case a lower MAPE indicates a better model fit. Thus, we should consider the estimates from our log-transformed data to be more reliable than those from the previous, raw data. It is interesting to note how our interpretation changes so much! Instead of a 49.5% lift, the estimate is now 4.5%. Finally let's visualize the updated estimate below. 
 
 <img src="../counterfactual_prediction_images/similiar_market_6.png" class="img-responsive" style="display: block; margin: auto;" />
 

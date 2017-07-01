@@ -8,7 +8,7 @@ weight = 1
 tags = ["SARIMAX", "R", "PYTHON", "WEBSCRAPING"]
 +++
 
-This post focuses on some of my favorite things -- data, sports, and forecasting -- and will outline how to leverage external regressors when creating forecasts. We'll do some webscraping in R and Python to create our dataset, and then forecast how many people will Visit Tom Brady's wikipedia page. 
+This post focuses on some of my favorite things -- data, sports, and forecasting -- and will outline how to leverage external regressors when creating forecasts. We'll do some webscraping in R and Python to create our dataset, and then forecast how many people will visit Tom Brady's wikipedia page. 
 <!--more-->
 
 <img src="../forecasting_regressors_images/hey_tom.jpg" class="img-responsive" style="display: block; margin: auto;" />
@@ -23,19 +23,19 @@ This post focuses on some of my favorite things -- data, sports, and forecasting
 Overview
 ------------
 
-Imagine it's January 1st, 2015 and the New England Patriots have made the playoffs yet again (sigh..). You run a webpage dedicated to Tom Brady and want to ensure you have enough servers ready to meet traffic to your website during the playoffs. Based on the past few years, you've noticed that traffic during January and February increases when the patriots win their playoff games. Thus you need a traffic forecast for these two months in order to get an idea about how many people will visit your site. 
+Imagine it's January 1st, 2015 and the New England Patriots have made the playoffs yet again. You run a webpage dedicated to Tom Brady and want to ensure you have enough servers ready to meet traffic to your website during the playoffs. Based on the past few years, you've noticed that traffic during January and February increases when the patriots win playoff games. Thus you need a traffic forecast for these two months to determine how many people will visit your site. 
 
-Additionally, you want quantify the effect of the number of playoff games won on monthly traffic. For example, what happens if the Patriots win two playoff games instead of one? Finally, you want an estimate of the probability of each of these scenarios unfolding--that is, the chances of winning 0, 1, 2, or all 3 playoff games. To achieve these objectives, we'll rely on several sources of data, incuding:
+Additionally, you want to quantify the effect of the number of playoff games won on monthly traffic. For example, what happens if the Patriots win two playoff games instead of one? Finally, you want an estimate of the probability of each of these scenarios unfolding--that is, the chances of winning 0, 1, 2, or all 3 playoff games. To achieve these objectives, we'll rely on the following sources of data:
 
 * Month Level Internet Traffic
 * Historical Game Outcomes
 * Historical Betting Lines 
 
-I'll go through the collection process associated with each of these data sets in in turn, and then we'll generate some forecasts! 
+I'll go through the collection process associated with each and then we'll generate some forecasts! 
 
 ### Collecting Month Level Traffic
 
-Let's get started by loading all of the libraries we'll need and setting our working directory. 
+Let's start by loading the required libraries and setting our working directory. 
 
 ```r
 libs = c('wikipediatrend', 'dplyr', 'data.table', 'rvest', 'forecast', 'artyfarty', 'knitr', 'ggplot2', 'forcats', 'lazyeval')
@@ -68,12 +68,13 @@ Let's have a look at the first 5 rows
 
 ### Collecting Historical Game Data
 
-Next we'll collect data on how the New England Patriots have historically performed during the playoffs, and then join this with our page views data set. I'm using the `rvest` package to scrape the outcomes (win or lose) of the patriots vs. each of the other 31 NFL teams. 
+Next we'll collect data on how the New England Patriots have historically performed during the playoffs, and then join this with our page views data set. I'm using the `rvest` package to scrape the outcomes (win or lose) of the Patriots vs. each of the other 31 NFL teams. 
 
 ``` r
  n_teams = 32
  team_name = "new-england-patriots"
  game_data = data.frame(NULL)
+ 
  for(team_number in as.character(seq(1, n_teams))){
    print(paste0("GATHERING DATA FOR TEAM: ", team_number))
    url = paste0("http://www.footballdb.com/teams/nfl/",
@@ -102,7 +103,7 @@ Again let's see what our data looks like:
 <img src="../forecasting_regressors_images/table2b.png" class="img-responsive" style="display: block; margin: auto;" />
 
 
-Overall looks pretty good but we still have some cleaning to do. What we want from this data are the dates of the playoff games and their outcome. Luckily there is an asterik delineating regular season games from playoff games, and we'll use this piece of information to identify the playoff games. 
+Overall looks pretty good but we still have some cleaning to do. What we want here are the dates of the playoff games and their outcomes. Luckily there is an asterik delineating regular season games from playoff games, and we'll use this symbol to identify the playoff games. 
 
 ```r
 game_data_outcome = game_data_clean %>% 
@@ -225,9 +226,9 @@ ggplot(train_df_final, aes(x = month_max_date, y = monthly_page_views/1e3)) +
 
 The above plot suggests that playoff games/wins do relate to page views. Now we'll do some validation work to see if including this information as an external regressor actually improves our forecasts. 
 
-### Model Selection And Validation
+### Model Selection and Validation
 
-Since the period we want to forecast for is Jan/Feb 2015, we'll hold out the two months of traffic results from Jan/Feb 2014 as a way to identify which inputs will likely yield the most accurate forecasts. We will specify an ARIMA model with a single external regressor (games won and games played), and compare the results on our validation set against an ARIMA model that relies on history alone.
+Since the period we want to forecast is Jan/Feb 2015, we'll hold out the two months of traffic results from Jan/Feb 2014 as a way to identify which inputs will likely yield the most accurate forecasts. We will specify an ARIMA model with a single external regressor (games won and games played), and compare the results on our validation set against an ARIMA model that relies on history alone.
 
 ```r
 # filter data until last year and create training and validation time periods
@@ -282,11 +283,11 @@ forecast_df = rbind(arima_no_xreg_f, arima_games_played_f, arima_games_won_f) %>
 
 <img src="../forecasting_regressors_images/table4b.png" class="img-responsive" style="display: block; margin: auto;" />
 
-Now we can compare our predictions against what actually happened. There are a number of ways to measure error in forecasting, and in this case we'll use the Mean Average Percent Error (MAPE), which is calculated as follows: 
+Now we can compare our predictions against what actually happened. There are a variety of ways to measure error in forecasting, and in this case we'll use the Mean Average Percent Error (MAPE), which is calculated as follows: 
 
 <img src="../forecasting_regressors_images/mape_equation.png" class="img-responsive" style="display: block; margin: auto;" />
 
-Where e<sub>t</sub> is the difference between the predicted and actual and y<sub>t</sub> is our actual. As with all error metrics, there are pros and cons to quantifying error with MAPE. The main advantage is ease of interpretation. Telling someone "our forecasts were off by 50%" is easier than saying "our forecasts were off by 10,458 units". The main disadvantage is that the scale on which your calculating your error matters. For example, a 10% miss on 10 units (1) is a lot smaller than a 10% MAPE on 100,000 units (10K), yet they are treated the same. Additionally, having a small value in the denominator can make a forecast look much worse than it actually is. So in short, if you are working with small quantities, use a different error metric. The quantities in this example are far from zero, so MAPE serves as a simple way to communicate forecasting error. Let's compare our MAPEs between the forecasting approaches
+Where e<sub>t</sub> is the difference between the predicted and actual and y<sub>t</sub> is our actual. As with all error metrics, there are pros and cons to quantifying error with MAPE. The main advantage is ease of interpretation. Telling someone "our forecasts were off by 50%" is easier than saying "our forecasts were off by 10,458 units". The main disadvantage is that the scale on which your calculating your error matters. For example, a 10% miss on 10 units (1) is a lot smaller than a 10% MAPE on 100,000 units (10K) yet they are treated equally. Additionally, having a small value in the denominator can make a forecast look much worse than it actually is. Therefore, if you are working with small quantities, I'd advise using a different error metric. The quantities in this example are far from zero, so MAPE serves as a simple way to convey forecasting error. Let's compare our MAPEs between the different forecasting inputs.
 
 ```r
 calcMape = function(predicted_amt, actual_amt){
@@ -320,16 +321,15 @@ ggplot(validation_output, aes(x = forecast_model, y = round(mape, 0),
 <img src="../forecasting_regressors_images/mape_plot.png" class="img-responsive" style="display: block; margin: auto;" />
 
 
-Based on the results from our validation set, it looks like the model that uses *Games Won* as an external regressor performed the best with a less than stellar 114 percent MAPE. We could reformulate our external regressor, try a different forecasting approach, or bring in additional covariates to improve our MAPE, but we'll keep it simple and just consider the aforementioned approaches. 
+Based on the results from our validation set, the model that uses *Games Won* as an external regressor performed the best with a less than stellar 114 percent MAPE. We could reformulate our external regressor, try a different forecasting approach, or bring in additional covariates to improve our MAPE, but we'll keep it simple and just consider the aforementioned approaches. 
 
-So we figured out which modeling approach works best, and we have all of the data we need to make a traffic forecast. There's only one problem: We won't know how many games the Patriots are going to win during the playoffs. Thus we'll need to first generate a prediction -- 0, 1, 2, or 3 -- for the expected number of games won as well, which will then serve as an input into our final, traffic-forecasting model.  
+So we figured out which input works best, and we have all of the data we need to make a traffic forecast. There's only one problem: We won't know how many games the Patriots are going to win during the playoffs. Thus we'll need t generate a prediction -- 0, 1, 2, or 3 -- for the expected number of games won as well, which will then serve as an input into our final, traffic-forecasting model.  
 
 ### Collecting Betting Lines
 
 To help us make an informed decision about the number of games the Patriots will win during the playoffs, we can leverage historic NFL betting lines. If you aren't familiar with a betting lines, it's basically a way for odds-makers to encourage an equal number bets for both teams playing in a game. 
 
-Previously we used R to scrape data from the web. We'll switch over to Python for a little bit to gather the win probabilities associated with different betting lines. The `BeautifulSoup` module is awesome for doing webscraping, so that's what we'll use here. If you want to stay in R, that's totally cool -- the data used for this part can easily be copied and pasted into a text file loaded into R (click [here](https://bootstrapious.com/p/creative-portfolio) to go to the data). If you want to pull this data through Python, though, here's the code: 
-
+Previously we used R to scrape data from the web. We'll switch over to Python for a little bit to gather the win probabilities associated with different betting lines. The `BeautifulSoup` module is awesome for doing webscraping, so that's what we'll use here.  
 ```python 
 import urllib2
 from bs4 import BeautifulSoup
@@ -364,9 +364,8 @@ And here is how we can execute the spead_scrape.py script from R.
 
 ```r
 python_location = system("which python", intern = TRUE)
-exe_py_command = paste0(python_location, " ", wd, "/spread_scrape.py ", wd)
-print(exe_py_command)
 
+exe_py_command = paste0(python_location, " ", wd, "/spread_scrape.py ", wd)
 ```
 
 If you aren't familiar with executing scripts in other languages from R (or the terminal), we can break this command down into further detail. It's quite simple. There are three components to above command: 
@@ -390,6 +389,7 @@ historic_win_percent = data.table::fread(paste0(wd, "/historic_win_percentages.c
 
 Let's look at the first 20 observations. 
 
+<img src="../forecasting_regressors_images/table5.png" class="img-responsive" style="display: block; margin: auto;" />
 
 Perfect. The interpretation is really simple: A team favored by 12 points has historically won ~78% of their games; bump that spread up to 16 points and there has never been a team favored by 16 points that has lost. Let's see what that looks like starting at a zero-point spread, when both teams are perceived by odds-makers to be an equal match. 
 
@@ -427,14 +427,14 @@ ggplot(historic_win_percent_clean, aes(x = favorite, y = win_pct)) +
 
 <img src="../forecasting_regressors_images/point_spread.png" class="img-responsive" style="display: block; margin: auto;" />
 
-Since we are in January we only know the spread for Game 1. The patriots are favored by 7, and we know historically that when a team is favored by 7 they win about ~73% of the time. So I'm feeling at least 1 win. What about 2? Here we are going to make an educated guess. We can assume that each subsequent game will be more challenging for the Patriots, so we'll make a prediction of a 5-point favorite. Finally, if the Patriots play in the superbowl, let's predict they'll be a 3-point favorite. If we assume that the outcome of each playoff game is independent of the prior game (which, barring a major injury to a key player, is a reasonable assumption) we can calculate the probability of each of these scenarios unfolding: 
+We only know the spread for Game 1 because we are generating our forecasts at the beginning of January. The Patriots are favored by 7, and we know historically that when a team is favored by 7 they win about ~73% of the time. So I'm feeling at least 1 win. What about 2? Here we are going to make an educated guess. We can assume that each subsequent game will be more challenging for the Patriots, so we'll make a prediction of a 5-point favorite. Finally, if the Patriots play in the Superbowl, let's predict they'll be a 3-point favorite. If we assume that the outcome of each playoff game is independent of the prior game (which, barring a major injury to a key player, is a reasonable assumption) we can calculate the probability of each of these scenarios unfolding: 
 
 <img src="../forecasting_regressors_images/win_prob.png" class="img-responsive" style="display: block; margin: auto;" />
 
 
 ### Seasonal ARIMAX Model
 
-Now that we’ve trained our model let’s actually see what it looks like.
+Now that we’ve trained our model let’s see what it looks like.
 
 ```r
 ## Series: page_views_train_final 
@@ -459,7 +459,7 @@ Now that we’ve trained our model let’s actually see what it looks like.
 ## Training set -0.01938565
 ```
 
-We haven't covered what's going on under the hood, so we'll go into a little detail on how to interpret the output. The great thing about the 'auto.arima' function is that it does the hard work of identifying the best model specification for our training data. While this is a huge time-saver, it helps to understand how and why certain parameters were selected. If you happen to be a forecasting expert and just want to know how to implement the model, feel free to skip this next section. 
+We haven't covered what's going on under the hood, so we'll go into detail on how to interpret the output. The great thing about the `auto.arima` function is that it does the hard work of identifying the best model specification from our training data. While this is a huge time-saver, it helps to understand how and why certain parameters were selected. If you happen to be a forecasting expert and just want to know how to implement the model, feel free to skip this next section. 
 
 Our model is `ARIMA(1,1,1)(0,1,1)[12]`. Let's focus on the first part  `ARIMA(1,1,1)`
 
@@ -467,14 +467,14 @@ ARIMA stands for Auto-Regressive Integrated Moving Average, which is why it is a
 
 Next the **Auto-Regressive** or (AR(1)) part. Auto-regressive roughly translates to 'regressed on itself', and implies that we can learn something about Y~t+1~ from Y~t~. Said differently, prior values (in this case from 1 prior time-step) are good indicators of subsequent future values, so we capture this with an auto-regressive term. 
 
-Finally the **Moving Average** or (MA(1)) part. Moving-average is similar to the A part, in that we use prior values to inform our prediction of future values, but instead of focusing on the actual values we focus instead on the prior errors, specifically our forecasting errors. These errors are computed as we fit the model, and like many things in life, we use our past errors to inform our future predictions.  
+Finally the **Moving Average** or (MA(1)) part. Moving-average is similar to the A part, in that we use prior values to inform our prediction of future values, but instead of focusing on the actual values we focus instead on prior errors, specifically our forecasting errors. These errors are computed as we fit the model, and like many things in life, we use our past errors to inform our future predictions.  
 
 Now let's discuss the second part: `(0,1,1)[12]`. This is the seasonality portion of our model and can be interpreted similarly to the first part. The model is determining the difference in each month's number of views across time, so Jan. 2015 - Jan. 2014 - Jan 2013...you get the point. That's the integrated part. The model also calculates a historical moving average with exponential weighting. The amount of weighting (or smoothing) is determined by the `sma1` coefficient contained in the above model. Coefficients that are closer to 1 indicate that more months (across history) are being used to determine how much future months will differ from the average of previous months.
 
 
 Finally the coefficient for our external regressor -- number of post-season games won -- has a value of 296550. This coefficient is interpreted just like a linear regression model; for each additional Patriot's post-season win, we expect ~296K more visits to Tom Brady's page.  
 
-If that all makes sense, let's test our model on the final data, with our external variable set to 2 playoff games, and see how our prediction of Tom Brady's page views compared to what actually happened. 
+If that all makes sense, let's test our model on the final data, with our external variable set to 2 playoff games, and see how our prediction of Tom Brady's page views compared to what actually happened. In essence, we are saying "The Patriots will make the superbowl but wont win." It turns out betting against the Patriots in the superbowl can be a bad move, something I've experienced firsthard. 
 
 
 ```r
@@ -490,7 +490,7 @@ print(test_df_final)
 print(calcMape(test_df_final$predicted_monthly_views, test_df_final$monthly_page_views))
 ```
 
-Our MAPE is about 35%, which is considerably better than the MAPE on our holdout set. However, our prediction of the Patriots only winning 2 games was wrong. The patriots won 3 post season games and beat the Seattle Seahawks 28-24 to win the superbowl. So what would've happened if our external regressor was correct (i.e., 3 instead of 2)? Or maybe we were too conservative and only predicted 1 win. How would each of these scenarios affected our forecasting accuracy? Let's find out. 
+Our MAPE is about 35%, which is considerably better than the MAPE on our holdout set. However, our prediction of the Patriots only winning 2 games was wrong. The patriots won 3 post season games and beat the Seattle Seahawks 28-24 to win the superbowl. So what would've happened if the value of our external regressor was correct (i.e., 3 instead of 2)? Or maybe we were too conservative and only predicted 1 win. How would each of these scenarios affected our forecasting accuracy? Let's find out. 
 
 ```r
 what_if_df = data.frame(year = rep(test_df_final$year, 3),
@@ -539,5 +539,5 @@ geom_label(label.size = 1, size = 10, color = "white")
 
 Hang on a second. So the model with the correct number of playoff games won (3) actually had the lowest accuracy? Yes and here's why: Across the history of our time series, the Patriots had never actually won 3 playoff games. They had only won 0, 1 or 2 games. Thus we are extrapolating to values not contained in our data set, which can be a recipe for disaster. If you look at the change in our forecast as we increase the number of playoff games won by 1 for the month of February, we expect an additional 296K visitors. We are making the assumption that there is a linear relationship between wins and page views, such that each additional win generates +296K views. This is clearly not the case, and the incorrect assumption is reflected in the accuracy of the resulting forecast. 
 
-Hopefully this post has eliminated some of the mystery around creating forecasts with external regressors.
+Hopefully this post has eliminated some of the mystery around creating forecasts with external regressors. 
 

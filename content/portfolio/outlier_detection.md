@@ -8,13 +8,12 @@ weight = 3
 tags = ["OUTLIER DETECTION", "R", "FORECASTING", "SEASONAL DECOMPOSITION"]
 +++
 
-Does this look weird? Find out a straightforward approach to detecting and replacing outliers in time series. 
-<!--more-->
+This post covers a straightforward approach to detecting and replacing outliers in time series. 
 
+<!--more-->
 
 -   [Overview](#overview)
 -   [Outlier Detection](#outlier-detection)
--   [Parallel Simulations with Multidplyr](#parallel-simulations-with-multidplyr)
 
 Overview
 ------------

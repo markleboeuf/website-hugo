@@ -23,12 +23,12 @@ Take a stroll through the random forest to learn how to quantify uncertainty in 
 Overview
 ------------
 
-People are mainly interested in your prediction or forecast. "How much" or "How Many" are what people want to know. Yet there is an equally important component to prediction -- "How Certain" or "How Confident". There is where confidence and prediction intervals enter into the equation. I'll first cover the difference between these two and then we'll do some implementation to see how we can capture uncertainty surrounding our predictions with a Random Forest. 
+We are often only interested in "How much" or "How Many" when it comes to making a prediction. Yet there is an equally important component that is often overlooked, namely "How Certain" or "How Confident". This is where confidence intervals (CIs) and prediction intervals (PIs) enter into the equation. I'll first cover the difference between CIs and PIs and then we'll do some implementation to see how we can capture uncertainty surrounding our predictions with a Random Forest. 
 
 ### Confidence And Prediction Intervals
 
 
-These two terms are often used interchangably but they are really quite different. Let's say we want to estimate Salary as a function of years of education via linear regression. Confidence intervals capture uncertainty around a parameter estimate (e.g., the average increase in salary for each additional year of education). If we were to repeatedly take samples of  people, measure their salary and years of education, and calculate a different regression equation for each sample, then 95% of the confidence intervals generated from each regression should contain the true parameter.   
+These two terms are often used interchangably but they are quite different. Let's say we want to estimate Salary as a function of years of education via linear regression. Confidence intervals capture uncertainty around a parameter estimate (e.g., the average increase in salary for each additional year of education). If we were to repeatedly take samples of  people, measure their salary and years of education, and calculate a different regression equation for each sample, then 95% of the confidence intervals generated from each regression should contain the true parameter.   
 
 Prediction intervals take uncertainty of parameter estimates into account as well but also consider the uncertainty around trying to predict the value of an unseen, single observation (variability of individual observations around the parameter). This is why prediction intervals are always wider than confidence intervals -- because we have to consider more sources of uncertainty. 
 
