@@ -39,7 +39,7 @@ libs = c('forcats', 'dplyr', 'h2o', 'openair', 'ggplot2','knitr', 'artyfarty')
 lapply(libs, require, character.only = TRUE)
 
 # link: https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/
-working_directory = "/Users/mlebo1/Desktop/spost/feature_selection"
+working_directory = "<your_working_directory>"
 setwd(working_directory)
 red_wine = read.csv('winequality-white.csv', sep = ";") %>% 
            dplyr::mutate(wine.type = "red")

@@ -76,7 +76,7 @@ So our power went up, which makes sense. As we increase our sample size, we beco
 
 ### Simulating Power
 
-If you are like me, I need to know what's actually going on. The process of calculating power initially seemed a bit mysterious to me. And when things don't make sense or seem a bit opaque the best way to understand them is to write some code and go line by line to figure out where these numbers come from. So that's what we'll do. 
+If you are like me, I need to know what's actually going on. The process of calculating power initially seemed a bit mysterious to me. And when things don't make sense or seem a bit opaque the best way to understand them is to write some code and go line by line to figure out where the numbers come from. So that's what we'll do. 
 
 Imagine we ran 1000 studies with the parameters outlined above. After each study, we conducted an independent-samples t-test, calculated the p-value, and determined whether it was less than our alpha (0.05). In all the cases where the value was greater than 0.05, we commited a type II error, because we know there is a difference between our two groups. 
 Let's add up this number, subtract it from 1000, and the total is our power.

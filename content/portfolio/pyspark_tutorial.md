@@ -11,6 +11,34 @@ tags = ["PARALLEL", "R", "FOREACH", "MULTIDPLYR"]
 Running Spark locally is a great place to start when initially learning. However, it's more realistic to and actually using it can be challenging. This post will show you how to set up an Amazon EC2 instance and run Pyspark. We'll do some analysis on historic flights data to see which carriers tend to be the most delayed. 
 <!--more-->
 
+We'll approach the set up as if you aren't the only person working in the environment. It's very common for a team of data scientists, analysts, and engineers to all share the same AWS environment. 
+
+### Creating a group
+
+First Create New Group. I typically use the following policies:
+* arn:aws:iam::aws:policy/AmazonS3FullAccess 
+* arn:aws:iam::aws:policy/AmazonEC2FullAccess
+
+This gives people complete access to both storage and compute.
+
+### Adding Users
+
+I'll add myself as a user. Select programattic access. One person should only have 
+Then you'll add the user to group, which gives them all of the permissions set at the group level. 
+
+
+
+
+
+### Setting up Credentials on AWS
+
+As of writing this post (07/01/2017), Amazon changed the way in which keys could be managed. 
+
+*1. Create a group 
+*2. Add user to the group
+*3. Save the Access key ID & Secret Key somewhere safe
+
+
 ### Storing and Accessing Data in S3
 
 Let's briefly go over the data we'll be working with before diving into the S3 plumbing. We'll use the `nycflights13::flights` dataset, which can be exported from R via:
@@ -23,7 +51,7 @@ write.csv(nycflights13::flights,
 ```
 Next we'll take this data set and store in Amazon S3. For those unfamiliar with S3, it's a place to store data via key-value pairs in something called a "bucket". You can create buckets and upload/download files from S3 via an AWS console, but in most real-world situations you'll want to do these steps programatically. If you don't have an amazon account, sign-up for one and then create an S3 bucket (I've titled mine 'pyspark.practice'). This bucket will hold the data we'll eventually access via EC2. 
 
-We have our bucket and next we'll need our security credentials, which include a **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY**. You'll need both to progromatically access your bucket. If you click on your username, go to **My Security Credentials**, then **Access Keys**, you'll be able to generate and download both keys. Store these in a safe place. 
+We have our bucket and next we'll need our security credentials, which include a **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY**. You'll need both to programatically access your bucket. If you click your username, go to **My Security Credentials**, then **Access Keys**, and you'll be able to generate and download both keys. Store these in a safe place. 
 
 Now that we have our bucket and keys, we will upload the flights data to our S3 bucket via the following Python Script. Note that in this script we've hardcoded the keys. This is not good practice, and the keys should be imported via an environmental variable or stored in your profile. However, for the sake of simplicity (and the fact that we aren't working with sensitive or private data), we'll include them in the script for the moment. 
 ```
@@ -90,18 +118,21 @@ chmod 400 marks_spark_instance.pem
 ```
 Now lets login to our instance. Take that DNS. 
 ```
-ssh -i marks_spark_instance.pem ubuntu@ec2-34-210-39-42.us-west-2.compute.amazonaws.com
+ssh -i marks_spark_instance.pem ubuntu@ec2-35-167-252-227.us-west-2.compute.amazonaws.com
 ```
 
 EC2 instance is just a fancy term for 'a remote computer'. 
 
-First let's install python3 
-
+First let's install pip
+```
+sudo apt-get install python-pip
+```
+Then install python3 
 ```
 sudo apt install python3
 ```
 
-When it comes to processing lots of data, Spark is quickly becoming the go-to solution. While "lots of data" means very different things to different people, I usually think of it as data that is too large to  fit on my computer's hard drive. 
+When it comes to processing lots of data, Spark is quickly becoming the go-to solution. While "lots of data" means very different things to different people, I usually think of it as data that is too large to fit on my computer's hard drive. 
 
 It has APIs in several languages, including Scala, Python, and more recently R, and greatly simplifies the steps required for distributed data processing. 
 
@@ -260,4 +291,9 @@ Assuming no error messages with this part, let's finally get started.
 
 ### Moving data from S3 to EC2
 
+### Installing R & R Studio
 
+You have can't a full fledged data-science ecosystem without R, in my highly biased opinion. Here are the steps:
+```
+http://amunategui.github.io/EC2-RStudioServer/
+```

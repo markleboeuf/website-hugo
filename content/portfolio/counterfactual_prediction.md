@@ -227,7 +227,7 @@ ggplot(similar_df, aes(x = as.Date(measurement_date), y = sales, color = store))
 ```
 <img src="../counterfactual_prediction_images/all_7_sales_3.png" class="img-responsive" style="display: block; margin: auto;" />
 
-Store 1 is our store, while stores 2-7 are the potential control stores. In order to make inferences about the effect of our sign-spinning intervention, we want to identify a seperate store(s) with similar sales history to serve as the control store(s). We'll keep it simple here and only use a single store, but you could potentially use any number of stores as a control. I'll discuss in the next section how we go about defining and identifying similarity.
+Store 1 is our store, while stores 2-7 are the potential control stores. In order to make inferences about the effect of our  intervention, we want to identify a seperate store(s) with similar sales history to serve as the control store(s). We'll keep it simple here and only use a single store, but you could potentially use any number of stores as a control. I'll discuss in the next section how we go about defining and identifying similarity.
 
 ### Selecting a Control Time Series with Dynamic Time Warping
 
