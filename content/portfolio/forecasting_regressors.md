@@ -4,7 +4,7 @@ title = "Forecasting with External Regressors"
 draft = false
 image = "img/portfolio/forecasting_xternal_regressor/hey_tom.jpg"
 showonlyimage = false
-weight = 1
+weight = 3
 tags = ["SARIMAX", "R", "PYTHON", "WEBSCRAPING"]
 +++
 

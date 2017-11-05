@@ -101,8 +101,8 @@ Let's break our time series out into three seperate components: Seasonal, Trend,
 ``` 
 ts_decomposition = data.frame(stl(ts(df$Milk_Production, frequency = 12), 
                                      s.window = "periodic")$time.series) %>% 
-                             reshape::melt() %>% 
-                             dplyr::mutate(Month = rep(df$Month, 3)) %>% 
+                             melt() %>% 
+                             mutate(Month = rep(df$Month, 3)) %>% 
                              dplyr::rename(component = variable)
 ```
 
@@ -126,12 +126,12 @@ I don't want to bury the lede here, so I'll just come right out and say it: The 
 ```
 # +- 3 SD approach
 remainder = ts_decomposition %>% 
-            dplyr::filter(component == 'remainder')
+            filter(component == 'remainder')
 sd_remainder = sd(remainder$value)          
 anomaly_boundary = c(-sd_remainder * 3, sd_remainder * 3)
 
 remainder_sd = remainder %>% 
-               dplyr::mutate(is_anomaly = ifelse(value > anomaly_boundary[2] | 
+               mutate(is_anomaly = ifelse(value > anomaly_boundary[2] | 
                              value < anomaly_boundary[1], "yes", "no"))
 ```
 
@@ -215,12 +215,12 @@ forecast_df = data.frame(anom_method = c(rep("IQR", n_holdout),
 
 ```r 
 forecast_df = forecast_df %>% 
-              dplyr::mutate(residual_squared = (actual_amt - forecasted_amt)^2) %>% 
-              dplyr::group_by(anom_method) %>% 
-              dplyr::summarise(mse = mean(residual_squared)) %>% 
+              mutate(residual_squared = (actual_amt - forecasted_amt)^2) %>% 
+              group_by(anom_method) %>% 
+              summarise(mse = mean(residual_squared)) %>% 
               data.frame() %>% 
-              dplyr::mutate(anom_method = factor(anom_method)) %>% 
-              dplyr::mutate(anom_method = forcats::fct_reorder(anom_method, mse, .desc = FALSE))
+              mutate(anom_method = factor(anom_method)) %>% 
+              mutate(anom_method = forcats::fct_reorder(anom_method, mse, .desc = FALSE))
 
 ggplot(forecast_df, aes(x = anom_method, y = round(mse, 0),
     fill = anom_method, label = as.character(round(mse, 0)))) + 
@@ -249,8 +249,8 @@ pi_df = data.frame(anom_method = c(rep("IQR", n_holdout),
                                    ts_sd_train$lower[,2],
                                    ts_orig_train$lower[,2]),
                    actual_amt = rep(validation_set, 3)) %>% 
-        dplyr::mutate(pi_range = upper_bound - lower_bound) %>% 
-        dplyr::mutate(actual_in_pi_range = as.integer(actual_amt < upper_bound & actual_amt > lower_bound))
+        mutate(pi_range = upper_bound - lower_bound) %>% 
+        mutate(actual_in_pi_range = as.integer(actual_amt < upper_bound & actual_amt > lower_bound))
 ```
 
 ```r 
@@ -269,8 +269,8 @@ The median PI range is the narrowest for the IQR and the widest when we don't re
 
 ```r
 print(pi_df %>% 
-     dplyr::group_by(anom_method) %>% 
-     dplyr::summarise(coverage_rate = round(sum(actual_in_pi_range)/12 * 100, 1)) %>% 
+     group_by(anom_method) %>% 
+     summarise(coverage_rate = round(sum(actual_in_pi_range)/12 * 100, 1)) %>% 
      data.frame())
 ```
 

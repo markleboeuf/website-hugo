@@ -71,6 +71,36 @@ souvenir$Date = as.Date(paste0(as.character(souvenir$Month), "-01"),
 
 The dataset is total monthly souvenir sales for your shop, starting in January of 1987 and running through December of 1993. Let's take a high level glance at our time series to see if we need to clean it up. 
 
+``` r
+color_values = c("#D9D9D9", "#33C5F3", "#F16C62", "#A8CE38", "#FCB51E", "#F92672")
+
+my_plot_theme = function(){
+  font_family = "Helvetica"
+  font_face = "bold"
+  return(theme(
+    axis.text.x = element_text(size = 18, face = font_face, family = font_family),
+    axis.text.y = element_text(size = 18, face = font_face, family = font_family),
+    axis.title.x = element_text(size = 20, face = font_face, family = font_family),
+    axis.title.y = element_text(size = 20, face = font_face, family = font_family),
+    strip.text.y = element_text(size = 18, face = font_face, family = font_family),
+    plot.title = element_text(size = 24, face = font_face, family = font_family),
+    legend.position = "top",
+    legend.title = element_text(colour = "white", size = 16,
+                                face = font_face,
+                                family = font_family),
+    legend.text = element_text(colour = "white", size = 14,
+                               face = font_face,
+                               family = font_family)
+  ))
+}
+
+ggplot(souvenir, aes(x = Date, y = Sales)) + geom_point(color = color_values[1], 
+                                                        size = 2) + 
+                                             geom_line(color = color_values[1],
+                                                       size = 2) + 
+  theme_monokai_full() + 
+  my_plot_theme()
+```
 
 <img src="../counterfactual_prediction_images/sales_plot_1.png" class="img-responsive" style="display: block; margin: auto;" />
 
@@ -112,6 +142,30 @@ souvenir_sim = data.frame(measurement_date = c(souvenir$Date, study_dates),
                           store = "1")
 ```
 
+```r 
+
+ggplot(souvenir_sim, aes(x = measurement_date, y = sales)) + 
+  theme_monokai_full() +
+  my_plot_theme() + ylab("Log Sales") + xlab("Date") + 
+  annotate("rect", xmin = min(souvenir_sim$measurement_date), 
+           xmax = intervention_start,
+           ymin = min(souvenir_sim$sales),
+           ymax = Inf,
+           fill = color_values[2],
+           alpha = 0.2
+  ) + 
+  annotate("rect", xmin = intervention_start, 
+           xmax = max(souvenir_sim$measurement_date),
+           ymin = min(souvenir_sim$sales),
+           ymax = Inf,
+           fill = color_values[3],
+           alpha = 0.2
+  ) + 
+  geom_point(color = color_values[1],
+             size = 2) +
+  geom_line(color = color_values[1],
+            size = 2)
+```
 <img src="../counterfactual_prediction_images/log_sales_2.png" class="img-responsive" style="display: block; margin: auto;" />
 
 
@@ -170,6 +224,16 @@ similar_df = rbind(souvenir_sim, similar_df)
 
 We now have all of time series in a neat dataframe. Let's visualize what that looks like. 
 
+```r 
+ggplot(similar_df, aes(x = as.Date(measurement_date), y = sales, color = store)) + geom_point() + geom_line() +
+  facet_wrap(~store, ncol = 1) + 
+  theme_monokai_full() + 
+  my_plot_theme() + ylab("Sales") + 
+  xlab("Date") + 
+  theme(strip.text.x = element_text(size = 14, face = "bold"),
+        axis.text.y = element_blank(),
+        legend.position = "none")
+```
 <img src="../counterfactual_prediction_images/all_7_sales_3.png" class="img-responsive" style="display: block; margin: auto;" />
 
 Store 1 is our store, while stores 2-7 are the potential control stores. In order to make inferences about the effect of our  intervention, we want to identify a seperate store(s) with similar sales history to serve as the control store(s). We'll keep it simple here and only use a single store, but you could potentially use any number of stores as a control. I'll discuss in the next section how we go about defining and identifying similarity.

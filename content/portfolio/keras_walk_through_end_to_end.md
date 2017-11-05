@@ -4,7 +4,7 @@ title = "Keras End-to-End Tutorial"
 draft = false
 image = "portfolio/keras_walkthrough_images/dog_v_cat.jpg"
 showonlyimage = false
-weight = 2
+weight = 4
 tags = ["PYTHON", "KERAS", "CNN"]
 +++
 
@@ -22,8 +22,7 @@ Most Keras tutorials I've come across outline the process of creating a Convolut
 ### Image Preprocessing
 
 We'll use images of dogs and cats, which can downloaded [here](https://www.kaggle.com/c/dogs-vs-cats/data), to learn how to build and evaluate an image classifier. We're only concerned with the images in the **test1.zip** folder. Once you've successfully completed the download, create a file in your working directory named "all_images" and put all of the images there, then load up the packages below. 
-
-```
+```python
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 from keras.models import Model 
 from keras.layers import Input, Convolution2D, MaxPooling2D, Dense, Dropout, Activation, Flatten
@@ -32,7 +31,6 @@ import itertools
 import os
 import random
 ```
-
 Note that you'll also have to install `tensorflow` even though its not imported here. It will serve as our "backend", which means that `Keras` leverages the capabilities available in `tensorflow`, like tensor multiplication, when its performing certain operations. This is built with the assumption that `tensorflow` will be the backend, although you can use others such as `theano`. However, the code will not run properly unless `tensorflow` is the backend because the syntax is unique to each backend. 
 
 Additionally, the following exercise can be completed in either `Tensorflow` or `Keras`. From my experience, both are amazing but the shear ease of implementation with Keras makes it great to just get something up and running. 
